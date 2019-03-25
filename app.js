@@ -1,5 +1,6 @@
 var express = require('express');
 var cookieParser = require('cookie-parser');
+var bodyParser = require('body-parser');
 var logger = require('morgan');
 var UnicornController = require('./unicorn/startup');
 
@@ -14,14 +15,17 @@ process.on('SIGINT', () => { unicornController.unsubscribeEvents() });
 
 
 var indexRouter = require('./routes/index');
+var sisRouter = require('./routes/sis');
 
 var app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(bodyParser.text({ type: ['text/*', 'application/*'] }));
 app.use(cookieParser());
 
 app.use('/', indexRouter);
+app.use('/sis', sisRouter);
 
 module.exports = app;

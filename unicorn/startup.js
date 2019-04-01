@@ -1,14 +1,16 @@
-const request = require('request-promise');
+const UnicornAdapter = require('unicorn-adapter');
 
 const UNICORN_BASE_URL = process.env.UNICORN_BASE_URL || "http://unicorn:8080/unicorn";
 const CAZ_BASE_URL = process.env.CAZ_BASE_URL || "http://caz:3000";
 
-const UNICORN_NOTIFICATION_URL = `${ UNICORN_BASE_URL }/webapi/REST/EventQuery/REST`;
 const CAZ_CALLBACK_URL = `${ CAZ_BASE_URL }/notification`;
 
 class UnicornController {
   constructor() {
-    this.tries = 5;
+    const options = {
+      maxTries: 10
+    };
+    this.unicornAdapter = new UnicornAdapter(UNICORN_BASE_URL, CAZ_CALLBACK_URL, options);
     this.parcelNotificationUUID = "";
     this.timeSlotOfferNotificationUUID = "";
   }
@@ -18,21 +20,14 @@ class UnicornController {
       this.subscribeToDCParcel(),
       this.subscribeToDCTimeSlotOffer()
     ]).then(([parcelResponse, timeSlotOfferResponse]) => {
-      console.info(parcelResponse);
+
+      console.info(`DCParcel UUID: ${ parcelResponse }`);
       this.parcelNotificationUUID = parcelResponse;
 
-      console.info(timeSlotOfferResponse);
+      console.info(`DCTimeSlotOffer UUID: ${ timeSlotOfferResponse }`);
       this.timeSlotOfferNotificationUUID = timeSlotOfferResponse;
 
       return [parcelResponse, timeSlotOfferResponse];
-    }).catch(error => {
-      if (this.tries > 0) this.tries -= 1;
-      else return;
-
-      return setTimeout(() => {
-        console.log("Trying to connect...");
-        return this.subscribeToEvents();
-      }, 5000)
     });
   }
 
@@ -42,68 +37,23 @@ class UnicornController {
       this.unsubscribeDCTimeSlotOffer()
     ]).then(() => {
       console.info("Deleted Notification");
-    }).catch(error => {
-      console.log(error.message);
     });
   }
 
   unsubscribeDCParcel() {
-    return UnicornController.unsubscribeEvent(this.parcelNotificationUUID);
+    return this.unicornAdapter.unsubscribeFromEvent(this.parcelNotificationUUID);
   }
 
   subscribeToDCParcel() {
-    return UnicornController.subscribeToEvent('DCParcel');
+    return this.unicornAdapter.subscribeToEvent('DCParcel');
   }
 
   unsubscribeDCTimeSlotOffer() {
-    return UnicornController.unsubscribeEvent(this.timeSlotOfferNotificationUUID);
+    return this.unicornAdapter.unsubscribeFromEvent(this.timeSlotOfferNotificationUUID);
   }
 
   subscribeToDCTimeSlotOffer() {
-    return UnicornController.subscribeToEvent('DCTimeSlotOffer');
-  }
-
-  static unsubscribeEvent(uuid) {
-    return UnicornController.deleteUnicornNotificationRule(uuid);
-  }
-
-  static subscribeToEvent(eventName, attributes = ["*"]) {
-    const attributesString = attributes.join(", ");
-    const esperQuery = `SELECT ${ attributesString } FROM ${ eventName }`;
-    return UnicornController.createUnicornNotificationRule(esperQuery);
-  }
-
-  static createUnicornNotificationRule(queryString) {
-    console.info(`Sending query: "${ queryString }" to "${ UNICORN_NOTIFICATION_URL }" with callback url: "${ CAZ_CALLBACK_URL }"`);
-
-    const body = {
-      notificationPath: CAZ_CALLBACK_URL,
-      queryString
-    };
-
-    return request({
-      uri: UNICORN_NOTIFICATION_URL,
-      method: 'POST',
-      headers: UnicornController.unicornAPIHeaders,
-      json: true,
-      body
-    });
-  }
-
-  static deleteUnicornNotificationRule(uuid) {
-    console.info(`Deleting notification with uuid: ${ uuid }`);
-
-    return request({
-      uri: `${ UNICORN_NOTIFICATION_URL }/${ uuid }`,
-      method: 'DELETE'
-    })
-  }
-
-  static get unicornAPIHeaders() {
-    return {
-      'Content-Type': 'application/json',
-      'Accept': 'text/plain'
-    }
+    return this.unicornAdapter.subscribeToEvent('DCTimeSlotOffer');
   }
 }
 

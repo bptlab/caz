@@ -7,53 +7,34 @@ const CAZ_CALLBACK_URL = `${ CAZ_BASE_URL }/notification`;
 
 class UnicornController {
   constructor() {
-    const options = {
-      maxTries: 10
-    };
+    const options = { maxTries: 10 };
     this.unicornAdapter = new UnicornAdapter(UNICORN_BASE_URL, CAZ_CALLBACK_URL, options);
-    this.parcelNotificationUUID = "";
-    this.timeSlotOfferNotificationUUID = "";
+    this.notificationRuleUUIDs = [];
+    this.subscriptionsToExecute = [
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'enriched' }, '/sis/arrived-at-depot'),
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'on the way' }, '/sis/pickup-reported'),
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/sis/delivery-reported')
+    ];
   }
 
   subscribeToEvents() {
-    return Promise.all([
-      this.subscribeToDCParcel(),
-      this.subscribeToDCTimeSlotOffer()
-    ]).then(([parcelResponse, timeSlotOfferResponse]) => {
-
-      console.info(`DCParcel UUID: ${ parcelResponse }`);
-      this.parcelNotificationUUID = parcelResponse;
-
-      console.info(`DCTimeSlotOffer UUID: ${ timeSlotOfferResponse }`);
-      this.timeSlotOfferNotificationUUID = timeSlotOfferResponse;
-
-      return [parcelResponse, timeSlotOfferResponse];
-    });
+    const $notificationRuleUUIDs = this.subscriptionsToExecute.map(subFunc => subFunc());
+    return Promise.all($notificationRuleUUIDs)
+      .then(notificationRuleUUIDs => {
+        this.notificationRuleUUIDs = notificationRuleUUIDs;
+        notificationRuleUUIDs.forEach(uuid => console.log(uuid));
+        return notificationRuleUUIDs;
+      });
   }
 
   unsubscribeEvents() {
-    return Promise.all([
-      this.unsubscribeDCParcel(),
-      this.unsubscribeDCTimeSlotOffer()
-    ]).then(() => {
-      console.info("Deleted Notification");
-    });
+    const $deletedNotificationRules = this.notificationRuleUUIDs.map(uuid => this.unicornAdapter.unsubscribeFromEvent(uuid));
+    return Promise.all($deletedNotificationRules).then(() => console.info("Deleted Notifications"));
   }
 
-  unsubscribeDCParcel() {
-    return this.unicornAdapter.unsubscribeFromEvent(this.parcelNotificationUUID);
-  }
-
-  subscribeToDCParcel() {
-    return this.unicornAdapter.subscribeToEvent('DCParcel');
-  }
-
-  unsubscribeDCTimeSlotOffer() {
-    return this.unicornAdapter.unsubscribeFromEvent(this.timeSlotOfferNotificationUUID);
-  }
-
-  subscribeToDCTimeSlotOffer() {
-    return this.unicornAdapter.subscribeToEvent('DCTimeSlotOffer');
+  subscribeToEvent(eventName, attributes, options, callbackPath) {
+    let callbackUrl = CAZ_BASE_URL + callbackPath;
+    return this.unicornAdapter.subscribeToEvent(eventName, attributes, options, callbackUrl);
   }
 }
 

@@ -2,6 +2,18 @@ var express = require('express');
 var router = express.Router();
 var helpers = require('../helpers');
 
+router.post('/arrived-at-depot', function (req, res, next) {
+  res.json({ message: "Event received." });
+});
+
+router.post('/pickup-reported', function (req, res, next) {
+  res.json({ message: "Event received." });
+});
+
+router.post('/delivery-reported', function (req, res, next) {
+  res.json({ message: "Event received."});
+});
+
 /* POST new sis event list */
 router.post('/parcels', function (req, res, next) {
   let payload = req.body;

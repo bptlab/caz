@@ -8,10 +8,10 @@ const unicornController = new UnicornController();
 unicornController.subscribeToEvents();
 
 // For nodemon restarts
-process.once('SIGUSR2', () => { unicornController.unsubscribeEvents() });
+process.once('SIGUSR2', () => { return unicornController.unsubscribeEvents().catch(error => console.error(error)) });
 
 // For app termination
-process.on('SIGINT', () => { unicornController.unsubscribeEvents() });
+process.on('SIGINT', () => { return unicornController.unsubscribeEvents().catch(error => console.error(error)) });
 
 
 var indexRouter = require('./routes/index');

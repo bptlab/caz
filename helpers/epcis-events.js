@@ -3,8 +3,8 @@ const xmlbuilder = require('xmlbuilder');
 
 const SIS_BASE_URL = 'https://smile-dev.epcat.de';
 const SIS_EVENT_URL = `${ SIS_BASE_URL }/api/capture/`;
-const SIS_USERNAME = 'marius.lichtblau@googlemail.com';
-const SIS_PASSWORD = 'Anjo1998';
+const SIS_USERNAME = 'smileprojectbp@gmail.com';
+const SIS_PASSWORD = 'you\'re the ; to my statements1';
 
 const getCurrentTimeAsIsoString = () => {
   const currentDate = new Date();

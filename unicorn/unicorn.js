@@ -5,15 +5,17 @@ const CAZ_BASE_URL = process.env.CAZ_BASE_URL || "http://caz:3000";
 
 const CAZ_CALLBACK_URL = `${ CAZ_BASE_URL }/notification`;
 
+const unicornAdapter = new UnicornAdapter(UNICORN_BASE_URL, CAZ_CALLBACK_URL);
+
 class UnicornController {
   constructor() {
-    const options = { maxTries: 10 };
-    this.unicornAdapter = new UnicornAdapter(UNICORN_BASE_URL, CAZ_CALLBACK_URL, options);
     this.notificationRuleUUIDs = [];
     this.subscriptionsToExecute = [
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'enriched' }, '/sis/arrived-at-depot'),
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'on the way' }, '/sis/pickup-reported'),
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/sis/delivery-reported')
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/sis/delivery-reported'),
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'registered' }, '/pickshare/parcel-registered'),
+      () => this.subscribeToEvent('DCTimeSlotOffer', ['*'], { 'DO_state': 'created' }, '/pickshare/time-slot-offer-created')
     ];
   }
 
@@ -28,14 +30,17 @@ class UnicornController {
   }
 
   unsubscribeEvents() {
-    const $deletedNotificationRules = this.notificationRuleUUIDs.map(uuid => this.unicornAdapter.unsubscribeFromEvent(uuid));
+    const $deletedNotificationRules = this.notificationRuleUUIDs.map(uuid => unicornAdapter.unsubscribeFromEvent(uuid));
     return Promise.all($deletedNotificationRules).then(() => console.info("Deleted Notifications"));
   }
 
   subscribeToEvent(eventName, attributes, options, callbackPath) {
     let callbackUrl = CAZ_BASE_URL + callbackPath;
-    return this.unicornAdapter.subscribeToEvent(eventName, attributes, options, callbackUrl);
+    return unicornAdapter.subscribeToEvent(eventName, attributes, options, callbackUrl);
   }
 }
 
-module.exports = UnicornController;
+module.exports = {
+  UnicornController,
+  unicornAdapter
+};

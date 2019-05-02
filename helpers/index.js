@@ -24,7 +24,12 @@ const sendEventToUnicorn = (event) => {
   });
 };
 
+const sendSuccessfullUnicornResponse = (req, res, next) => {
+  res.json({ message: "Event received." });
+};
+
 module.exports = {
   getEPCISQueryDocumentForObjectEvent,
-  sendEventToUnicorn
+  sendEventToUnicorn,
+  sendSuccessfullUnicornResponse
 };

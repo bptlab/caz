@@ -3,26 +3,27 @@ var router = express.Router();
 var helpers = require('../helpers');
 var epcisEvents = require('../helpers/epcis-events');
 
+/* UNICORN subscriptions */
+
 router.post('/arrived-at-depot', function (req, res, next) {
   const { sscc, depotID } = req.body;
   const eventXml = epcisEvents.receiving(sscc, depotID);
   epcisEvents.send(eventXml);
-  res.json({ message: "Event received." });
-});
+  next();
+}, helpers.sendSuccessfullUnicornResponse);
 
 router.post('/pickup-reported', function (req, res, next) {
   const { sscc, depotID, receiverID } = req.body;
   const eventXml = epcisEvents.shipping(sscc, depotID, receiverID);
   epcisEvents.send(eventXml);
-  res.json({ message: "Event received." });
-});
+  next();
+}, helpers.sendSuccessfullUnicornResponse);
 
 router.post('/delivery-reported', function (req, res, next) {
   const { sscc, receiverID } = req.body;
   const eventXml = epcisEvents.receiving2(sscc, receiverID);
   epcisEvents.send(eventXml);
-  res.json({ message: "Event received." });
-});
+}, helpers.sendSuccessfullUnicornResponse);
 
 /* POST new sis event list */
 router.post('/parcels', function (req, res, next) {

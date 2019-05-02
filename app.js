@@ -2,7 +2,7 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
-var UnicornController = require('./unicorn/startup');
+var UnicornController = require('./unicorn/unicorn').UnicornController;
 
 const unicornController = new UnicornController();
 unicornController.subscribeToEvents();
@@ -16,6 +16,7 @@ process.on('SIGINT', () => { return unicornController.unsubscribeEvents().catch(
 
 var indexRouter = require('./routes/index');
 var sisRouter = require('./routes/sis');
+var pickshareRouter = require('./routes/pickshare');
 
 var app = express();
 
@@ -27,5 +28,6 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/sis', sisRouter);
+app.use('/pickshare', pickshareRouter);
 
 module.exports = app;

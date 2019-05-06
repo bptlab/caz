@@ -21,14 +21,14 @@ router.post('/time-slot-offer-created', function (req, res, next) {
 /* Receiver preferences */
 router.post('/receiver-preferences-received', function (req, res, next) {
   const event = req.body;
-  unicornAdapter.generateChimeraEvent(event, 'DCReceiverPreferences', 'received')
+  unicornAdapter.generateChimeraEvent(event, 'ETReceiverPreferencesReceived')
     .then(response => res.send(response));
 });
 
 /* Parcel arrived at depot */
 router.post('/arrived-at-depot', function (req, res, next) {
   const event = req.body;
-  unicornAdapter.generateChimeraEvent(event, 'DCArrivedAtDepot', 'received')
+  unicornAdapter.generateChimeraEvent(event, 'ETArrivedAtDepot', 'received')
     .then(response => res.send(response));
 });
 

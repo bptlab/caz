@@ -11,7 +11,7 @@ class UnicornController {
   constructor() {
     this.notificationRuleUUIDs = [];
     this.subscriptionsToExecute = [
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'enriched' }, '/sis/arrived-at-depot'),
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'ready' }, '/sis/arrived-at-depot'),
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'on the way' }, '/sis/pickup-reported'),
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/sis/delivery-reported'),
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'registered' }, '/pickshare/parcel-registered'),

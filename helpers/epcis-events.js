@@ -19,11 +19,7 @@ const wrapObjectEvent = function (objectEvent) {
       '@xmlns:smile': 'http://ns.smile-project.de/epcis',
       '@schemaVersion': '1.2',
       '@creationDate': '2018-05-15T14:07:44.834Z',
-      'EPCISBody': {
-        'EventList': {
-          'ObjectEvent': objectEvent
-        }
-      }
+      'EPCISBody': { 'EventList': { 'ObjectEvent': objectEvent } }
     }
   }
 };
@@ -35,92 +31,37 @@ const getEventXml = function (objectEvent) {
 
 const receiving = function (sscc, depotId) {
   return getEventXml({
-    'eventTime': {
-      '#text': getCurrentTimeAsIsoString()
-    },
-    'eventTimeZoneOffset': {
-      '#text': '+02:00'
-    },
-    'epcList': {
-      'epc': {
-        '#text': sscc
-      }
-    },
-    'action': {
-      '#text': 'OBSERVE'
-    },
-    'bizStep': {
-      '#text': 'urn:epcglobal:cbv:bizstep:receiving'
-    },
-    'bizLocation': {
-      'id': {
-        '#text': depotId
-      }
-    }
+    'eventTime': { '#text': getCurrentTimeAsIsoString() },
+    'eventTimeZoneOffset': { '#text': '+02:00' },
+    'epcList': { 'epc': { '#text': sscc } },
+    'action': { '#text': 'OBSERVE' },
+    'bizStep': { '#text': 'urn:epcglobal:cbv:bizstep:receiving' },
+    'bizLocation': { 'id': { '#text': depotId } }
   });
 };
 
 const shipping = function (sscc, depotId, receiverId) {
   return getEventXml({
-    'eventTime': {
-      '#text': getCurrentTimeAsIsoString()
-    },
-    'eventTimeZoneOffset': {
-      '#text': '+02:00'
-    },
-    'epcList': {
-      'epc': {
-        '#text': sscc
-      }
-    },
-    'action': {
-      '#text': 'OBSERVE'
-    },
-    'bizStep': {
-      '#text': 'urn:epcglobal:cbv:bizstep:shipping'
-    },
-    'disposition': {
-      '#text': 'urn:epcglobal:cbv:disp:in_transit'
-    },
-    'bizLocation': {
-      'id': {
-        '#text': depotId
-      }
-    },
-    'smile:personId': [
-      { '#text': 'fahrerID' },
-      { '#text': receiverId }
-    ]
+    'eventTime': { '#text': getCurrentTimeAsIsoString() },
+    'eventTimeZoneOffset': { '#text': '+02:00' },
+    'epcList': { 'epc': { '#text': sscc } },
+    'action': { '#text': 'OBSERVE' },
+    'bizStep': { '#text': 'urn:epcglobal:cbv:bizstep:shipping' },
+    'disposition': { '#text': 'urn:epcglobal:cbv:disp:in_transit' },
+    'bizLocation': { 'id': { '#text': depotId } },
+    'smile:personId': [ { '#text': 'fahrerID' }, { '#text': receiverId } ]
   });
 };
 
 const receiving2 = function (sscc, receiverId) {
   return getEventXml({
-    'eventTime': {
-      '#text': getCurrentTimeAsIsoString()
-    },
-    'eventTimeZoneOffset': {
-      '#text': '+02:00'
-    },
-    'epcList': {
-      'epc': {
-        '#text': sscc
-      }
-    },
-    'action': {
-      '#text': 'OBSERVE'
-    },
-    'bizStep': {
-      '#text': 'urn:epcglobal:cbv:bizstep:receiving'
-    },
-    'bizLocation': {
-      'id': {
-        '#text': 'fahrerId'
-      }
-    },
-    'smile:personId': {
-      '#text': receiverId
-    }
+    'eventTime': { '#text': getCurrentTimeAsIsoString() },
+    'eventTimeZoneOffset': { '#text': '+02:00' },
+    'epcList': { 'epc': { '#text': sscc } },
+    'action': { '#text': 'OBSERVE' },
+    'bizStep': { '#text': 'urn:epcglobal:cbv:bizstep:receiving' },
+    'bizLocation': { 'id': { '#text': 'fahrerId' } },
+    'smile:personId': { '#text': receiverId }
   });
 };
 

@@ -15,7 +15,8 @@ class UnicornController {
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'on the way' }, '/sis/pickup-reported'),
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/sis/delivery-reported'),
       () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'registered' }, '/pickshare/parcel-registered'),
-      () => this.subscribeToEvent('DCTimeSlotOffer', ['*'], { 'DO_state': 'created' }, '/pickshare/time-slot-offer-created')
+      () => this.subscribeToEvent('DCTimeSlotOffer', ['*'], { 'DO_state': 'created' }, '/pickshare/time-slot-offer-created'),
+      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/pickshare/delivery-reported')
     ];
   }
 

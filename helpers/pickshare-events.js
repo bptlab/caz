@@ -33,7 +33,7 @@ const registerParcel = function (parcel) {
     "width": parcel.width,
     "depotStreetName": parcel.depotStreetName
   };
-  const url = `${ PICKSHARE_API_URL }/parcel`;
+  const url = `${ PICKSHARE_API_URL }/parcels`;
   return send(url, payload);
 };
 
@@ -57,7 +57,7 @@ const confirmDelivery = function (sscc) {
 const send = function (url, payload) {
   return request.post(url, {
     json: payload,
-    auth: { 'Bearer': PICKSHARE_BEARER_TOKEN }
+    auth: { 'bearer': PICKSHARE_BEARER_TOKEN }
   })
     .then(result => console.log(result))
     .catch(error => console.log(error));

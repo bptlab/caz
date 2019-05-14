@@ -17,6 +17,7 @@ process.on('SIGINT', () => { return unicornController.unsubscribeEvents().catch(
 var indexRouter = require('./routes/index');
 var sisRouter = require('./routes/sis');
 var pickshareRouter = require('./routes/pickshare');
+var tmsRouter = require('./routes/tms');
 
 var app = express();
 
@@ -29,5 +30,6 @@ app.use(cookieParser());
 app.use('/', indexRouter);
 app.use('/sis', sisRouter);
 app.use('/pickshare', pickshareRouter);
+app.use('/tms', tmsRouter);
 
 module.exports = app;

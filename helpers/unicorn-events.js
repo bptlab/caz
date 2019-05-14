@@ -68,7 +68,7 @@ const ETParcelDataCreated = (sisEvent) => {
     "depotZIP": depotZip,
     "receiverLastName": receiverLastname,
     "receiverID": receiverSmileUserId,
-    "depotID": "partyhuetchen",
+    "depotID": "",
     "height": heightValue,
     "senderStreetNumber": senderStreetNumber,
     "senderFirstName": senderFirstname,

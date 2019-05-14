@@ -8,14 +8,20 @@ var unicornAdapter = require('../unicorn/unicorn').unicornAdapter;
 /* UNICORN subscriptions */
 
 router.post('/arrived-at-depot', function (req, res, next) {
-  const { sscc, depotID } = req.body;
+  let { sscc, depotID, depotOrganisation, depotFirstname, depotLastname } = req.body;
+  // If depot id is empty use available name
+  depotID = depotID === 'ERROR' ? undefined : depotID;
+  depotID = depotID || depotOrganisation || depotFirstname + depotLastname;
   const eventXml = epcisEvents.receiving(sscc, depotID);
   epcisEvents.send(eventXml);
   next();
 }, helpers.sendSuccessfullUnicornResponse);
 
 router.post('/pickup-reported', function (req, res, next) {
-  const { sscc, depotID, receiverID } = req.body;
+  let { sscc, depotID, receiverID, depotOrganisation, depotFirstname, depotLastname } = req.body;
+  // If depot id is empty use available name
+  depotID = depotID === 'ERROR' ? undefined : depotID;
+  depotID = depotID || depotOrganisation || depotFirstname + depotLastname;
   const eventXml = epcisEvents.shipping(sscc, depotID, receiverID);
   epcisEvents.send(eventXml);
   next();
@@ -58,10 +64,9 @@ router.post('/parcels', function (req, res, next) {
             return unicornAdapter.generateChimeraEvent(unicornEvent, 'ETParcelDataReceived', 'new');
           // Parcel arrives at depot or at the receiver
           case 'urn:epcglobal:cbv:bizstep:receiving':
-            break;
           // Parcel is picked up at depot
           case 'urn:epcglobal:cbv:bizstep:shipping':
-            break;
+          // Unknown bizStep
           default:
             break;
         }

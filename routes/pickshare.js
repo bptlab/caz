@@ -2,23 +2,36 @@ var express = require('express');
 var router = express.Router();
 var helpers = require('../helpers');
 var unicornAdapter = require('../unicorn/unicorn').unicornAdapter;
+var pickshareEvents = require('../helpers/pickshare-events');
 
 /* UNICORN subscriptions */
 router.post('/parcel-registered', function (req, res, next) {
   const parcel = req.body;
-  console.log("Sending Parcel Data to PickShare");
-  console.log(parcel);
+  pickshareEvents.registerParcel(parcel)
+    .then(result => console.log(result))
+    .catch(error => console.error(error));
   next();
 }, helpers.sendSuccessfullUnicornResponse);
 
 router.post('/time-slot-offer-created', function (req, res, next) {
   const timeSlotOffer = req.body;
-  console.log("Sending Time Slot Offer to PickShare");
-  console.log(timeSlotOffer);
+  pickshareEvents.createOffer(timeSlotOffer)
+    .then(result => console.log(result))
+    .catch(error => console.error(error));
   next();
 }, helpers.sendSuccessfullUnicornResponse);
 
+router.post('/delivery-reported', function (req, res, next) {
+  const parcel = req.body;
+  pickshareEvents.confirmDelivery(parcel.sscc)
+    .then(result => console.log(result))
+    .catch(error => console.error(error));
+  next();
+}, helpers.sendSuccessfullUnicornResponse);
+
+/* Incoming Events */
 /* Receiver preferences */
+/* Currently not by PickShare */
 router.post('/receiver-preferences-received', function (req, res, next) {
   const event = req.body;
   unicornAdapter.generateChimeraEvent(event, 'ETReceiverPreferencesReceived')
@@ -36,20 +49,6 @@ router.post('/arrived-at-depot', function (req, res, next) {
 router.post('/offer-confirmed', function (req, res, next) {
   const event = req.body;
   unicornAdapter.generateChimeraEvent(event, 'ETTimeSlotOfferConfirmed')
-    .then(response => res.send(response));
-});
-
-/* Parcel picked up at micro depot */
-router.post('/pick-up-reported', function (req, res, next) {
-  const event = req.body;
-  unicornAdapter.generateChimeraEvent(event, 'ETPickUpReported')
-    .then(response => res.send(response));
-});
-
-/* Parcel delivered to customer */
-router.post('/delivery-reported', function (req, res, next) {
-  const event = req.body;
-  unicornAdapter.generateChimeraEvent(event, 'ETDeliveryReported')
     .then(response => res.send(response));
 });
 

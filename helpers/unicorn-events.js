@@ -92,6 +92,66 @@ const ETParcelDataCreated = (sisEvent) => {
   };
 };
 
+const ETReceiverPreferencesReceived = (parcel, pickshareEvent) => {
+  const {
+    receiverStreet,
+    receiverCity,
+    receiverZIP,
+    receiverCountry,
+    receiverFirstName,
+    receiverLastName,
+    receiverOrganisation,
+    receiverLevel,
+    receiverRemark,
+    typeOfDelivery,
+    pickshareDeliveryPreferences
+  } = pickshareEvent;
+
+  // Create Time Slots
+  const timeSlotBegin = new Date(parcel.dateOfPlannedDelivery);
+  const timeSlotEnd = new Date(parcel.dateOfPlannedDelivery);
+
+  // Get american weekday index of date of planned delivery and convert to german index
+  const arrivalDay = (timeSlotBegin.getDay() - 1) % 7;
+
+  // Find window that fits day. Choose later if multiple windows match.
+  const deliveryWindow = pickshareDeliveryPreferences
+  // Sort
+    .sort((a, b) =>  !(a['timeTo'] < b['timeTo']))
+    // Pick day
+    .find(window =>  window['days'][arrivalDay] === '1');
+
+
+  // Get hours and minutes;
+  // Note: timeTo and timeFrom need to be switched 🤨
+  const [startHour, startMinute] = deliveryWindow['timeTo'].split(':');
+  const [endHour, endMinute] = deliveryWindow['timeFrom'].split(':');
+
+  // update dates
+  timeSlotBegin.setHours(parseInt(startHour), parseInt(startMinute));
+  timeSlotEnd.setHours(parseInt(endHour), parseInt(endMinute));
+
+  const [receiverStreetName, receiverStreetNumber] = receiverStreet.split(' ');
+
+  return {
+    receiverID: parcel.receiverID,
+    receiverStreetName: receiverStreetName || '',
+    receiverStreetNumber: receiverStreetNumber || '',
+    receiverZIP: receiverZIP || '',
+    receiverCity: receiverCity || '',
+    receiverCountry: receiverCountry || '',
+    typeOfDelivery: typeOfDelivery || '',
+    timeSlotBegin: timeSlotBegin || '',
+    timeSlotEnd: timeSlotEnd || '',
+    receiverFirstName: receiverFirstName || '',
+    receiverLastName: receiverLastName || '',
+    receiverOrganisation: receiverOrganisation || '',
+    receiverLevel: receiverLevel || '',
+    receiverRemark: receiverRemark || ''
+  };
+};
+
 module.exports = {
-  ETParcelDataCreated
+  ETParcelDataCreated,
+  ETReceiverPreferencesReceived
 };

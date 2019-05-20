@@ -59,7 +59,6 @@ const send = function (url, payload) {
     json: payload,
     auth: { 'bearer': PICKSHARE_BEARER_TOKEN }
   })
-    .then(result => console.log(result))
     .catch(error => console.log(error));
 };
 

@@ -8,7 +8,7 @@ var pickshareEvents = require('../helpers/pickshare-events');
 router.post('/parcel-registered', function (req, res, next) {
   const parcel = req.body;
   pickshareEvents.registerParcel(parcel)
-    .then(result => console.log(result))
+    .then(receiver => receiverPreferencesReceived(parcel, receiver))
     .catch(error => console.error(error));
   next();
 }, helpers.sendSuccessfullUnicornResponse);
@@ -30,8 +30,12 @@ router.post('/delivery-reported', function (req, res, next) {
 }, helpers.sendSuccessfullUnicornResponse);
 
 /* Incoming Events */
-/* Receiver preferences */
-/* Currently not by PickShare */
+/* Receiver Preferences Received */
+const receiverPreferencesReceived = (parcel, pickshareEvent) => {
+  const unicornEvent = helpers.unicornEvents.ETReceiverPreferencesReceived(parcel, pickshareEvent);
+  return unicornAdapter.generateChimeraEvent(unicornEvent, 'ETReceiverPreferencesReceived');
+};
+
 router.post('/receiver-preferences-received', function (req, res, next) {
   const event = req.body;
   unicornAdapter.generateChimeraEvent(event, 'ETReceiverPreferencesReceived')

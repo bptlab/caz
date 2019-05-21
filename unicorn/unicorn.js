@@ -8,20 +8,13 @@ const CAZ_CALLBACK_URL = `${ CAZ_BASE_URL }/notification`;
 const unicornAdapter = new UnicornAdapter(UNICORN_BASE_URL, CAZ_CALLBACK_URL);
 
 class UnicornController {
-  constructor() {
+  constructor(subscriptions) {
     this.notificationRuleUUIDs = [];
-    this.subscriptionsToExecute = [
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'ready' }, '/sis/arrived-at-depot'),
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'on the way' }, '/sis/pickup-reported'),
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/sis/delivery-reported'),
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'registered' }, '/pickshare/parcel-registered'),
-      () => this.subscribeToEvent('DCTimeSlotOffer', ['*'], { 'DO_state': 'created' }, '/pickshare/time-slot-offer-created'),
-      () => this.subscribeToEvent('DCParcel', ['*'], { 'DO_state': 'delivered' }, '/pickshare/delivery-reported')
-    ];
+    this.subscriptions = subscriptions;
   }
 
   subscribeToEvents() {
-    const $notificationRuleUUIDs = this.subscriptionsToExecute.map(subFunc => subFunc());
+    const $notificationRuleUUIDs = this.subscriptions.map(({ event, attributes, filters, route }) => this.subscribeToEvent(event, attributes, filters, route));
     return Promise.all($notificationRuleUUIDs)
       .then(notificationRuleUUIDs => {
         this.notificationRuleUUIDs = notificationRuleUUIDs;

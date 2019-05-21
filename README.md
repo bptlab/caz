@@ -25,6 +25,10 @@ _For more development information, please refer to the [Wiki][wiki]._
 
 The Caz already provides a simple way to subscribe to certain Unicorn events.
 
+### Subscribe to events
+
+To receive events from the
+
 ## Development setup
 
 To start local development it's enough to run
@@ -32,6 +36,8 @@ To start local development it's enough to run
 ```sh
 npm run start # or
 nodemon       # restarts server on filechange
+# If you are running the bpt-docker-zoo you can run this command to hook up the CAZ
+UNICORN_BASE_URL=http://localhost/smile/unicorn CAZ_BASE_URL=http://host.docker.internal:3000 nodemon
 ```
 
 ![](documentation/caz_workflow.png)

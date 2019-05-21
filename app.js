@@ -4,7 +4,16 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var UnicornController = require('./unicorn/unicorn').UnicornController;
 
-const unicornController = new UnicornController();
+const SUBSCRIPTIONS = [
+  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'ready' }, route: '/sis/arrived-at-depot' },
+  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'on the way' }, route: '/sis/pickup-reported' },
+  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'delivered' }, route: '/sis/delivery-reported' },
+  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'registered' }, route: '/pickshare/parcel-registered' },
+  { event: 'DCTimeSlotOffer', attributes: ['*'], filters: { 'DO_state': 'created' }, route: '/pickshare/time-slot-offer-created' },
+  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'delivered' }, route: '/pickshare/delivery-reported' }
+];
+
+const unicornController = new UnicornController(SUBSCRIPTIONS);
 unicornController.subscribeToEvents();
 
 // For nodemon restarts

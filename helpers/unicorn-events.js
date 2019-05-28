@@ -50,7 +50,7 @@ const ETParcelDataCreated = (sisEvent) => {
           'smile:length': {
             'smile:uom': lengthUOM,
             'smile:value': lengthValue
-          }
+          } = { }
         } = { },
         'smile:dateOfPlannedDelivery': {
           _: dateOfPlannedDelivery
@@ -131,7 +131,8 @@ const ETReceiverPreferencesReceived = (parcel, pickshareEvent) => {
   timeSlotBegin.setHours(parseInt(startHour), parseInt(startMinute));
   timeSlotEnd.setHours(parseInt(endHour), parseInt(endMinute));
 
-  const [receiverStreetName, receiverStreetNumber] = receiverStreet.split(' ');
+  const [receiverStreetNumber, ...receiverStreetNames] = receiverStreet.split(' ').reverse();
+  const receiverStreetName = receiverStreetNames.reverse().join(' ');
 
   return {
     receiverID: parcel.receiverID,

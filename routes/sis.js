@@ -82,7 +82,8 @@ router.post('/parcels', function (req, res, next) {
       })
       .catch(error => {
         console.error('Failed to import events:\n' + error);
-        res.status(500).json({ status: 'failed 😢', error });
+        console.log(payload);
+        res.status(200).json({ status: 'failed 😢', error });
       });
   }
 });

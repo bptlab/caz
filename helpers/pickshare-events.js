@@ -51,7 +51,7 @@ const createOffer = function (offer) {
 
 const confirmDelivery = function (sscc) {
   const url = `${ PICKSHARE_API_URL }/parcels/confirm/${ sscc }`;
-  return request.get(url, { 'bearer': PICKSHARE_BEARER_TOKEN });
+  return request.get(url, { auth: { 'bearer': PICKSHARE_BEARER_TOKEN }});
 };
 
 const send = function (url, payload) {

@@ -19,15 +19,45 @@ npm install -g nodemon  # To restart server on filechange for local development
 npm run start           # Start server
 ```
 
-_For more development information, please refer to the [Wiki][wiki]._
-
 ## Usage
 
 The Caz already provides a simple way to subscribe to certain Unicorn events.
 
 ### Subscribe to events
 
-To receive events from the
+In order to receive messages it is necessary to first subscribe to all events that are of interest.
+Please overwrite the `ROUTES` constant in `app.js` with an array that contains an object for each subscription.
+
+*An example of a subscription:*
+
+```javascript
+const ROUTES = [{
+  event: 'DCParcel',
+  attributes: ['*'],
+  filters: { 'DO_state': 'delivered' },
+  route: '/sis/delivery-reported'
+}];
+```
+
+CAZ handles registering and also deleting unnecessary subscriptions in Unicorn automatically.
+
+### Handle Notifications
+
+Once an event is generated in Unicorn that matches one or multiple subscriptions CAZ is called with a POST request on the specified route.
+The request body contains a JSON object matching the event type that is registered in Unicorn.
+The CAZ can now convert the data to a format that is accepted by third party APIs and subsequently call the third party API with the correct data.
+
+*An example of a notification handler:*
+
+```javascript
+router.post('/delivery-reported', function (req, res, next) {   // Add route defined by subscription
+  const { sscc, receiverID } = req.body;                        // Pick only necessary event information
+  const eventXml = epcisEvents.receiving2(sscc, receiverID);    // Convert JSON to XML expected by third party API
+  epcisEvents.send(eventXml);                                   // Call third party API with correct data
+}, helpers.sendSuccessfullUnicornResponse);                     // Send success response to Unicorn
+```
+
+###
 
 ## Development setup
 

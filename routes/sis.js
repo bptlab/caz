@@ -31,6 +31,7 @@ router.post('/delivery-reported', function (req, res, next) {
   const { sscc, receiverID } = req.body;
   const eventXml = epcisEvents.receiving2(sscc, receiverID);
   epcisEvents.send(eventXml);
+  next();
 }, helpers.sendSuccessfullUnicornResponse);
 
 /* POST new sis event list */

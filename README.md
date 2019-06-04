@@ -1,13 +1,13 @@
-# Caz
+# CAZ
 > Generic adapter to subscribe to handle communication between Unicorn and Third Party APIs
 
 <!-- [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
 [![Downloads Stats][npm-downloads]][npm-url] -->
 
-Chimera uses events to communicate with third party APIs. In order to make it as easy as possible to establish the connection, Caz provides a generic, easy to configure, framework.
+Chimera uses events to communicate with third party APIs. In order to make it as easy as possible to establish the connection, CAZ provides a generic, easy to configure, framework.
 
-<!-- ![](header.png) -->
+![](documentation/caz_workflow.png)
 
 ## Installation
 
@@ -25,7 +25,7 @@ See [Development Section](#development-setup) for an example.
 
 ## Usage
 
-The Caz already provides a simple way to subscribe to Unicorn events.
+The CAZ already provides a simple way to subscribe to Unicorn events.
 
 ### Subscribe to events
 
@@ -65,7 +65,7 @@ router.post('/delivery-reported', function (req, res, next) {   // Add route def
 ## SMile
 
 Although the generic architecture of the CAZ can be used for all sorts of projects involving Unicorn as the event engine, this implementation is developed for the [Smile Project](https://github.com/orgs/bptlab/projects/3).
-The Caz acts as an adapter between UNICORN and three external API providers, namely: **Pickshare**, **SIS** and **TMS**.
+The CAZ acts as an adapter between UNICORN and three external API providers, namely: **Pickshare**, **SIS** and **TMS**.
 For the communication from the process engine to the external partner the CAZ subscribes to events of interest, converts the data and calls the third party API.
 On the other hand the CAZ offers REST routes for the partners that publish events.
 
@@ -122,8 +122,6 @@ nodemon       # restarts server on filechange
 # If you are running the bpt-docker-zoo you can run this command to hook up the CAZ
 UNICORN_BASE_URL=http://localhost/smile/unicorn CAZ_BASE_URL=http://host.docker.internal:3000 nodemon
 ```
-
-![](documentation/caz_workflow.png)
 
 ## Release History
 

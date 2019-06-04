@@ -19,19 +19,23 @@ npm install -g nodemon  # To restart server on filechange for local development
 npm run start           # Start server
 ```
 
+> Note, that in order to work with UNICORN, CAZ must know the UNICORN URL and its own URL. 
+You can set the URLs using the environment variables `UNICORN_BASE_URL` and `CAZ_BASE_URL`.
+See [Development Section](#development-setup) for an example.
+
 ## Usage
 
-The Caz already provides a simple way to subscribe to certain Unicorn events.
+The Caz already provides a simple way to subscribe to Unicorn events.
 
 ### Subscribe to events
 
 In order to receive messages it is necessary to first subscribe to all events that are of interest.
-Please overwrite the `ROUTES` constant in `app.js` with an array that contains an object for each subscription.
+Please overwrite the `SUBSCRIPTIONS` constant in `app.js` with an array that contains an object for each subscription.
 
 *An example of a subscription:*
 
 ```javascript
-const ROUTES = [{
+const SUBSCRIPTIONS = [{
   event: 'DCParcel',
   attributes: ['*'],
   filters: { 'DO_state': 'delivered' },
@@ -54,10 +58,59 @@ router.post('/delivery-reported', function (req, res, next) {   // Add route def
   const { sscc, receiverID } = req.body;                        // Pick only necessary event information
   const eventXml = epcisEvents.receiving2(sscc, receiverID);    // Convert JSON to XML expected by third party API
   epcisEvents.send(eventXml);                                   // Call third party API with correct data
+  next();
 }, helpers.sendSuccessfullUnicornResponse);                     // Send success response to Unicorn
 ```
 
-###
+## SMile
+
+Although the generic architecture of the CAZ can be used for all sorts of projects involving Unicorn as the event engine, this implementation is developed for the [Smile Project](https://github.com/orgs/bptlab/projects/3).
+The Caz acts as an adapter between UNICORN and three external API providers, namely: **Pickshare**, **SIS** and **TMS**.
+For the communication from the process engine to the external partner the CAZ subscribes to events of interest, converts the data and calls the third party API.
+On the other hand the CAZ offers REST routes for the partners that publish events.
+
+### Pickshare
+
+#### SMile ➡ Pickshare
+
+1. `parcel-registered`
+1. `time-slot-offer-created`
+1. `delivery-reported`
+
+SMile informs Pickshare when a new parcel is registered, when an offer is created and after the successful delivery.
+
+#### Pickshare ➡ SMile
+
+1. `receiver-preferences-received`
+1. `arrived-at-depot`
+1. `offer-confirmed`
+
+Pickshare informs SMile about the receivers address and time slot preferences, the arrival at the microdepot and the confirmation of an offer. 
+
+### SIS
+
+#### SMile ➡ SIS
+
+1. `arrived-at-depot`
+1. `pickup-reported`
+1. `delivery-reported`
+
+SMile informs SIS when the parcel arrived at the depot, when the deliverer picks up the parcel at the depot and when the parcel is delivered to the receiver.
+
+#### SIS ➡ SMile
+
+1. `parcels`
+
+SIS informs SMile about new parcels added by the sender
+
+### TMS
+
+#### TMS ➡ SMile
+
+1. `pick-up-reported` 
+1. `delivery-reported`
+
+TMS informs SMile when the deliverer picks up a parcel at the microdepot and when the parcel is delivered to the receiver
 
 ## Development setup
 

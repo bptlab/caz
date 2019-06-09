@@ -64,7 +64,8 @@ router.post('/delivery-reported', function (req, res, next) {   // Add route def
 
 ## SMile
 
-Although the generic architecture of the CAZ can be used for all sorts of projects involving Unicorn as the event engine, this implementation is developed for the [Smile Project](https://github.com/orgs/bptlab/projects/3).
+Although the generic architecture of the CAZ can be used for all sorts of projects involving Unicorn as the event engine, this implementation is developed for the Smile Project. 
+More details, e.g. the process description can be found in the [Wiki of the Smile Project](https://github.com/bptlab/smile/wiki).
 The CAZ acts as an adapter between UNICORN and three external API providers, namely: **Pickshare**, **SIS** and **TMS**.
 For the communication from the process engine to the external partner the CAZ subscribes to events of interest, converts the data and calls the third party API.
 On the other hand the CAZ offers REST routes for the partners that publish events.

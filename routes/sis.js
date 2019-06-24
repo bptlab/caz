@@ -1,38 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var helpers = require('../helpers');
-var epcisEvents = require('../helpers/epcis-events');
 var parseXmlString = require('xml2js').parseString;
 var unicornAdapter = require('../unicorn/unicorn').unicornAdapter;
-
-/* UNICORN subscriptions */
-
-router.post('/arrived-at-depot', function (req, res, next) {
-  let { sscc, depotID, depotOrganisation, depotFirstname, depotLastname } = req.body;
-  // If depot id is empty use available name
-  depotID = depotID === 'ERROR' ? undefined : depotID;
-  depotID = depotID || depotOrganisation || depotFirstname + depotLastname;
-  const eventXml = epcisEvents.receiving(sscc, depotID);
-  epcisEvents.send(eventXml);
-  next();
-}, helpers.sendSuccessfullUnicornResponse);
-
-router.post('/pickup-reported', function (req, res, next) {
-  let { sscc, depotID, receiverID, depotOrganisation, depotFirstname, depotLastname } = req.body;
-  // If depot id is empty use available name
-  depotID = depotID === 'ERROR' ? undefined : depotID;
-  depotID = depotID || depotOrganisation || depotFirstname + depotLastname;
-  const eventXml = epcisEvents.shipping(sscc, depotID, receiverID);
-  epcisEvents.send(eventXml);
-  next();
-}, helpers.sendSuccessfullUnicornResponse);
-
-router.post('/delivery-reported', function (req, res, next) {
-  const { sscc, receiverID } = req.body;
-  const eventXml = epcisEvents.receiving2(sscc, receiverID);
-  epcisEvents.send(eventXml);
-  next();
-}, helpers.sendSuccessfullUnicornResponse);
 
 /* POST new sis event list */
 router.post('/parcels', function (req, res, next) {
@@ -61,14 +31,20 @@ router.post('/parcels', function (req, res, next) {
           // Creation of parcel data
           case 'urn:epcglobal:cbv:bizstep:commissioning':
             // convert SIS event to ETParcelDataCreated
+            console.log('BizStep: commissioning');
             const unicornEvent = helpers.unicornEvents.ETParcelDataCreated(result);
             return unicornAdapter.generateChimeraEvent(unicornEvent, 'ETParcelDataReceived', 'new');
           // Parcel arrives at depot or at the receiver
           case 'urn:epcglobal:cbv:bizstep:receiving':
+            console.log('BizStep: receiving');
+            break;
           // Parcel is picked up at depot
           case 'urn:epcglobal:cbv:bizstep:shipping':
+            console.log('BizStep: shipping');
+            break;
           // Unknown bizStep
           default:
+            console.log('BizStep: unknown');
             break;
         }
       });

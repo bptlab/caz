@@ -72,7 +72,6 @@ const send = function (eventXml) {
     body: eventXml,
     auth: { 'user': SIS_USERNAME, 'pass': SIS_PASSWORD }
   })
-    .then(result => console.log(result))
     .catch(error => console.log(error));
 };
 

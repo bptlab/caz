@@ -8,29 +8,22 @@ const CAZ_CALLBACK_URL = `${ CAZ_BASE_URL }/notification`;
 const unicornAdapter = new UnicornAdapter(UNICORN_BASE_URL, CAZ_CALLBACK_URL);
 
 class UnicornController {
-  constructor(subscriptions) {
+  constructor() {
     this.notificationRuleUUIDs = [];
-    this.subscriptions = subscriptions;
   }
 
-  subscribeToEvents() {
-    const $notificationRuleUUIDs = this.subscriptions.map(({ event, attributes, filters, route }) => this.subscribeToEvent(event, attributes, filters, route));
-    return Promise.all($notificationRuleUUIDs)
-      .then(notificationRuleUUIDs => {
-        this.notificationRuleUUIDs = notificationRuleUUIDs;
-        notificationRuleUUIDs.forEach(uuid => console.log(uuid));
-        return notificationRuleUUIDs;
+  subscribeToEvent({ eventName, attributes, filters }, route) {
+    return unicornAdapter.subscribeToEvent(eventName, attributes, filters, CAZ_BASE_URL + route)
+      .then(notificationRuleUUID => {
+        this.notificationRuleUUIDs.push(notificationRuleUUID);
+        console.info(`Create Notification rule for ${ eventName } with id: ${ notificationRuleUUID}`);
+        return notificationRuleUUID;
       });
   }
 
   unsubscribeEvents() {
     const $deletedNotificationRules = this.notificationRuleUUIDs.map(uuid => unicornAdapter.unsubscribeFromEvent(uuid));
     return Promise.all($deletedNotificationRules).then(() => console.info("Deleted Notifications"));
-  }
-
-  subscribeToEvent(eventName, attributes, options, callbackPath) {
-    let callbackUrl = CAZ_BASE_URL + callbackPath;
-    return unicornAdapter.subscribeToEvent(eventName, attributes, options, callbackUrl);
   }
 }
 

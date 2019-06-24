@@ -2,26 +2,15 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var logger = require('morgan');
-var UnicornController = require('./unicorn/unicorn').UnicornController;
 
-const SUBSCRIPTIONS = [
-  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'ready' }, route: '/sis/arrived-at-depot' },
-  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'on the way' }, route: '/sis/pickup-reported' },
-  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'delivered' }, route: '/sis/delivery-reported' },
-  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'registered' }, route: '/pickshare/parcel-registered' },
-  { event: 'DCTimeSlotOffer', attributes: ['*'], filters: { 'DO_state': 'created' }, route: '/pickshare/time-slot-offer-created' },
-  { event: 'DCParcel', attributes: ['*'], filters: { 'DO_state': 'delivered' }, route: '/pickshare/delivery-reported' }
-];
-
-const unicornController = new UnicornController(SUBSCRIPTIONS);
-unicornController.subscribeToEvents();
-
+const subscriptionController = require('./subscriptions');
+subscriptionController.subscribeToEvents();
 // For nodemon restarts
-process.once('SIGUSR2', () => { return unicornController.unsubscribeEvents().catch(error => console.error(error)) });
+process.once('SIGUSR2', () => { return subscriptionController.unsubscribeEvents() });
 
 // For app termination
-process.on('SIGINT', () => { return unicornController.unsubscribeEvents().catch(error => console.error(error)) });
-
+process.on('SIGINT', () => { return subscriptionController.unsubscribeEvents() });
+process.on('SIGTERM', () => { return subscriptionController.unsubscribeEvents() });
 
 var indexRouter = require('./routes/index');
 var sisRouter = require('./routes/sis');
@@ -46,5 +35,6 @@ app.use('/', indexRouter);
 app.use('/sis', sisRouter);
 app.use('/pickshare', pickshareRouter);
 app.use('/tms', tmsRouter);
+app.use('/subscriptions', subscriptionController.router);
 
 module.exports = app;

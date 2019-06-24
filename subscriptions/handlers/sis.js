@@ -11,7 +11,7 @@ function reportArrivalAtDepot(event, next) {
 }
 
 function reportPickup(event, next) {
-  const { sscc, receiverID } = parcel;
+  const { sscc, receiverID } = event;
   const eventXml = epcisEvents.receiving2(sscc, receiverID);
   epcisEvents.send(eventXml);
   next();

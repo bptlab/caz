@@ -25,42 +25,50 @@ See [Development Section](#development-setup) for an example.
 
 ## Usage
 
-The CAZ already provides a simple way to subscribe to Unicorn events.
+CAZ is bidirectional adapter which handles subscribing to events in Unicorn as well as publishing events from external sources.
 
 ### Subscribe to events
 
-In order to receive messages it is necessary to first subscribe to all events that are of interest.
-Please overwrite the `SUBSCRIPTIONS` constant in `app.js` with an array that contains an object for each subscription.
-
-*An example of a subscription:*
+Event subscriptions are defined on startup in the `subscriptions` module.
+In order to add a new subscription to a Unicorn event, add it to the `SUBSCRIPTIONS` array in `subscriptions/subscriptions.js` like this:
 
 ```javascript
-const SUBSCRIPTIONS = [{
-  event: 'DCParcel',
-  attributes: ['*'],
-  filters: { 'DO_state': 'delivered' },
-  route: '/sis/delivery-reported'
-}];
+const SUBSCRIPTIONS = [
+  { 
+    /* This describes which event the subscription rule is created for */
+    event: {
+      eventName: 'DCParcel', 
+      attributes: ['*'], 
+      filters: { 'DO_state': 'ready' } }, 
+    /* This defines the callback handler that is executed when a new event arrives */
+    handler: sis.reportArrivalAtDepot },
+]
 ```
 
-CAZ handles registering and also deleting unnecessary subscriptions in Unicorn automatically.
+Events can be filtered in order to subscribe only to events of interest:
+* `eventName` is the name of the event type
+* `attributes` only selects certain attributes of the event
+* `filters` allow filtering events using the [Esper Query Language](https://github.com/mlichtblau/esper-language). (Currently only a subset available)
 
-### Handle Notifications
-
-Once an event is generated in Unicorn that matches one or multiple subscriptions CAZ is called with a POST request on the specified route.
-The request body contains a JSON object matching the event type that is registered in Unicorn.
+The handlers can be implemented either in place or as in this case in the `subscriptions/handlers` directory.
+Once an event is generated in Unicorn that matches one or multiple subscriptions Unicorn informs CAZ and the callback that was defined with the subscription is executed.
+The callback function gets the event as a JSON objects as its first parameter. The second parameter is a callback function that should be called when the handler is finished with its execution.
 The CAZ can now convert the data to a format that is accepted by third party APIs and subsequently call the third party API with the correct data.
 
 *An example of a notification handler:*
 
 ```javascript
-router.post('/delivery-reported', function (req, res, next) {   // Add route defined by subscription
-  const { sscc, receiverID } = req.body;                        // Pick only necessary event information
-  const eventXml = epcisEvents.receiving2(sscc, receiverID);    // Convert JSON to XML expected by third party API
-  epcisEvents.send(eventXml);                                   // Call third party API with correct data
-  next();
-}, helpers.sendSuccessfullUnicornResponse);                     // Send success response to Unicorn
+function createOffer(timeSlotOffer, next) {
+  pickshareEvents.createOffer(timeSlotOffer)
+    .then(result => next())
+    .catch(error => next(error));
+}
 ```
+
+### Provide the interface for the partner
+
+Just every Express.js server, CAZ can implement custom endpoints that the third parties can call to publish events in Unicorn.
+These routes are defined in the `routes/` directory and make use of the Unicorn Adapter which handles the publishing of event
 
 ## SMile
 
